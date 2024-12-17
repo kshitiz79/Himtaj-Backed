@@ -37,6 +37,15 @@ app.use('/api/', limiter); // Apply to all API routes
 // Logging
 app.use(morgan('combined'));
 
+
+app.get('/', (req, res) => {
+    res.send('Welcome to the Himtaj Backend API!');
+});
+
+
+
+
+
 // Routes
 const authRoutes = require('./src/users/user.route');
 const productRoutes = require('./src/products/products.route');
