@@ -13,13 +13,20 @@ const uploadImage = require("./utils/uploadimage");
 const app = express();
 const port = process.env.PORT || 4000;
 
-// Middleware
-app.use(cors({ 
-    origin: [
-        process.env.FRONTEND_URL || 'https://glucksfinance.com',
-        'http://localhost:5173'
-    ],
-    credentials: true,
+const allowedOrigins = [
+  "https://glucksfinance.com", // Production Frontend URL
+  "http://localhost:1573",     // Local Development Frontend
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS policy: This origin is not allowed"));
+    }
+  },
+  credentials: true, // Allow cookies and credentials
 }));
 
 app.use(express.json({ limit: "25mb" }));
