@@ -14,7 +14,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 const allowedOrigins = [
-  "https://glucksfinance.com", // Production Frontend URL
+  "https://himtajjewelry.com, // Production Frontend URL
   "http://localhost:1573",     // Local Development Frontend
 ];
 
