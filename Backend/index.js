@@ -14,8 +14,8 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 const allowedOrigins = [
-  "https://himtajjewelry.com, // Production Frontend URL
-  "http://localhost:1573",     // Local Development Frontend
+  "https://himtajjewelry.com", // Production Frontend URL
+  "http://localhost:1573",    // Local Development Frontend
 ];
 
 app.use(cors({
@@ -28,6 +28,7 @@ app.use(cors({
   },
   credentials: true, // Allow cookies and credentials
 }));
+
 
 app.use(express.json({ limit: "25mb" }));
 app.use(bodyParser.json({ limit: "25mb" })); // Body parser for JSON
