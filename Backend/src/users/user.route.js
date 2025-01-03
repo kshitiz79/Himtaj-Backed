@@ -5,8 +5,10 @@ const generateToken = require('../middleware/generateToken');
 const verifyToken = require('../middleware/verifyToken');
 const router = express.Router();
 
+const OTP = require('./otp.model');
 
-
+const crypto = require("crypto");
+const { sendEmail } = require("./../../utils/emailService"); // Import email service
 
 // register
 
@@ -26,6 +28,62 @@ router.post('/register', async (req, res) => {
 })
 
 //login
+
+
+router.post("/send-otp", async (req, res) => {
+  try {
+      const { email } = req.body;
+      const otp = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit OTP
+      await OTP.create({ email, otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+      await sendEmail(email, "Your OTP", `Your OTP is ${otp}`);
+      res.status(200).json({ message: "OTP sent successfully" });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to send OTP" });
+  }
+});
+
+// Verify OTP
+router.post("/verify-otp", async (req, res) => {
+  try {
+      const { email, otp } = req.body;
+      const otpRecord = await OTP.findOne({ email, otp });
+      if (!otpRecord || otpRecord.expiresAt < Date.now()) {
+          return res.status(400).json({ message: "Invalid or expired OTP" });
+      }
+      
+      await OTP.deleteOne({ _id: otpRecord._id });
+      res.status(200).json({ message: "OTP verified successfully" });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Failed to verify OTP" });
+  }
+});
+
+
+router.post("/verify-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Find the OTP in the database
+    const otpRecord = await OTP.findOne({ email, otp });
+
+    if (!otpRecord || otpRecord.expiresAt < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Remove OTP record after verification
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    // Proceed with registration or other logic
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ message: "Failed to verify OTP" });
+  }
+});
+
+
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
