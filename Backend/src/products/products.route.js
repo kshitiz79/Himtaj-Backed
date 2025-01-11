@@ -42,28 +42,69 @@ router.get("/search", async (req, res) => {
   }
 });
 
+
+
+
+
+
 // Fetch all products with filters and pagination
 router.get("/", async (req, res) => {
   try {
-    const { category, color, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
+    const {
+      gender,
+      category,
+      color,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+      sortBy = "createdAt",    // default sorting field
+      sortOrder = "desc",      // default sorting order: 'asc' or 'desc'
+    } = req.query;
 
     const filter = {};
 
-    if (category) filter.category = category;
-    if (color) filter.colors = color;
-    if (minPrice) filter.price = { ...filter.price, $gte: parseFloat(minPrice) };
-    if (maxPrice) filter.price = { ...filter.price, $lte: parseFloat(maxPrice) };
+    // 1. Gender filter
+    if (gender) {
+      const validGenders = ["male", "female"];
+      if (!validGenders.includes(gender.toLowerCase())) {
+        return res.status(400).json({
+          message: "Invalid gender. Use 'male' or 'female'.",
+        });
+      }
+      filter.gender = gender.toLowerCase();
+    }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    // 2. Category filter
+    if (category) {
+      filter.category = category;
+    }
+    if (color) {
+      filter["colors.value"] = color;
+    }
 
-    const products = await Products.find(filter).skip(skip).limit(parseInt(limit));
+    if (minPrice) {
+      filter.price = { ...filter.price, $gte: parseFloat(minPrice) };
+    }
+    if (maxPrice) {
+      filter.price = { ...filter.price, $lte: parseFloat(maxPrice) };
+    }
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    const sortDirection = sortOrder.toLowerCase() === "asc" ? 1 : -1;
+    const sortObj = { [sortBy]: sortDirection };
+    const products = await Products.find(filter)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limitNum);
     const totalProducts = await Products.countDocuments(filter);
 
     res.status(200).json({
       products,
       totalProducts,
-      totalPages: Math.ceil(totalProducts / limit),
-      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalProducts / limitNum),
+      currentPage: pageNum,
     });
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -71,23 +112,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Fetch products by gender
-router.get("/products-by-gender/:gender", async (req, res) => {
-  const { gender } = req.params;
 
-  try {
-    if (!["male", "female"].includes(gender.toLowerCase())) {
-      return res.status(400).json({ message: "Invalid gender. Use 'male' or 'female'." });
-    }
 
-    const products = await Products.find({ gender: gender.toLowerCase() });
 
-    res.status(200).json(products);
-  } catch (error) {
-    console.error(`Error fetching ${gender} products:`, error);
-    res.status(500).json({ message: `Error fetching ${gender} products` });
-  }
-});
 
 
 

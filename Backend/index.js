@@ -16,7 +16,7 @@ const port = process.env.PORT || 4000;
 // Middleware
 app.use(helmet()); // Secure HTTP headers
 app.use(cors({ 
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || 'https://himtajjewelry.com',
     credentials: true,
 }));
 app.use(express.json({ limit: "25mb" }));
