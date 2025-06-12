@@ -87,45 +87,45 @@ router.post("/verify-otp", async (req, res) => {
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
- try {
-  const user = await User.findOne({ email }); 
-  if (!user) {
-    return res.status(404).send({ message: 'User not found' });
-}
-const isMatch = await user.comparePassword(password);
-if (!isMatch) {
-    return res.status(401).send({ message: 'Invalid credentials' });
-}
-const token = await generateToken(user._id); 
 
- res.cookie('token',token, { httpOnly: true,
-  secure: true, // Ensure this is true for HTTPS
-  sameSite: 'None'})
+  try {
+    const user = await User.findOne({ email }); 
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' });
+    }
 
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).send({ message: 'Invalid credentials' });
+    }
 
+    const token = await generateToken(user._id); 
 
-res.status(200).send({ message: 'Logged in successfully', token, user :
-  {
-    _id: user._id,
-    email: user.email,
-    username: user.username,
-    role: user.role,
-    profileImage: user.profileImage,
-    bio: user.bio,
-    profession: user.profession,
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true, // for HTTPS
+      sameSite: 'None'
+    });
+
+    res.status(200).send({
+      message: 'Logged in successfully',
+      token,
+      user: {
+        _id: user._id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        profileImage: user.profileImage,
+        bio: user.bio,
+        profession: user.profession,
+      }
+    });
+
+  } catch (err) {
+    console.error('Error logged in user:', err); // ✅ corrected
+    res.status(500).send({ message: 'Login failed', error: err.message });
   }
-
 });
- }
- 
- 
- catch (err) {
-  console.error('Error logged in user user:', error);
-  res.status(500).send({ message: 'Registration failed' });
-
- }
-
-})
 
 //logoutendpoint
 
