@@ -15,10 +15,23 @@ const port = process.env.PORT || 4000;
 
 // Middleware
 app.use(helmet()); // Secure HTTP headers
-app.use(cors({ 
-    origin: process.env.FRONTEND_URL || 'https://himtajjewelry.com',  'http://localhost:5173',
-    credentials: true,
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      process.env.FRONTEND_URL,
+      'https://himtajjewelry.com',
+      'http://localhost:5173'
+    ];
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
+
 app.use(express.json({ limit: "25mb" }));
 app.use(bodyParser.json({ limit: "25mb" })); // Body parser for JSON
 app.use(bodyParser.urlencoded({ limit: "25mb", extended: true })); // Body parser for URL-encoded data
