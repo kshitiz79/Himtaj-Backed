@@ -57,6 +57,8 @@ const cartRoutes = require('./src/cart/cart.route');
 const dealRoutes = require('./src/deals/deals.route');
 const couponRoutes = require('./src/coupon/coupon.route');
 const orderRoutes = require('./src/orders/order.route');
+const bannerRoutes = require('./src/banners/banners.route');
+const heroRoutes = require('./src/heroes/heroes.route');
 
 // Route mounting
 app.use('/api/auth', authRoutes);
@@ -67,6 +69,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/deal', dealRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupon', couponRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/heroes', heroRoutes);
 
 // 🖼️ Image Upload Endpoint
 app.post('/api/uploadImage', (req, res) => {

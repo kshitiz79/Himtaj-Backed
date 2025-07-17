@@ -119,10 +119,23 @@ router.get("/", async (req, res) => {
 
 
 // Fetch trending products
-router.get("/trending", async (req, res) => {
+router.get("/trending", async (_req, res) => {
   try {
-    const trendingProducts = await Products.find({ isTrending: true });
-    res.status(200).json(trendingProducts);
+    const trendingProducts = await Products.find({ isTrending: true })
+      .sort({ createdAt: -1 }) // Sort by latest uploaded first (-1 for descending order)
+      .select('name createdAt isTrending'); // Add select to see the fields for debugging
+    
+    console.log("Trending products fetched:", trendingProducts.map(p => ({
+      name: p.name,
+      createdAt: p.createdAt,
+      isTrending: p.isTrending
+    })));
+    
+    // Remove select for actual response
+    const fullTrendingProducts = await Products.find({ isTrending: true })
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(fullTrendingProducts);
   } catch (error) {
     console.error("Error fetching trending products:", error);
     res.status(500).json({ message: "Error fetching trending products" });
