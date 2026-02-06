@@ -12,6 +12,9 @@ const uploadImage = require('./utils/uploadimage');
 const app = express();
 const port = process.env.PORT || 4000;
 
+// Trust proxy for Render/Cloudflare/etc.
+app.set('trust proxy', 1);
+
 // 🔐 Security headers
 app.use(helmet());
 
@@ -21,6 +24,7 @@ app.use(cors({
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'https://himtajjewelry.com',
+      'https://www.himtajjewelry.com',
       'http://localhost:5173',
       'http://localhost:3000', // Next.js default port
       'http://localhost:3001', // Alternative Next.js port
@@ -29,7 +33,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true);
     }
   },
   credentials: true,
@@ -100,10 +104,7 @@ app.use((err, req, res, next) => {
 // 🧠 DB Connection + Server Start
 async function main() {
   try {
-    await mongoose.connect(process.env.DB_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.DB_URL);
     console.log('Mongodb connected successfully!');
 
     // ✅ Start server only after DB is connected

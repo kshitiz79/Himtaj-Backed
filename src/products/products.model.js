@@ -26,6 +26,8 @@ const ProductSchema = new mongoose.Schema({
 }, { timestamps: true });
 ProductSchema.index({ createdAt: -1 });
 ProductSchema.index({ isTrending: 1, createdAt: -1 });
+ProductSchema.index({ category: 1, createdAt: -1 });
+ProductSchema.index({ gender: 1, createdAt: -1 });
 
 const Products = mongoose.model("Product", ProductSchema);
 
