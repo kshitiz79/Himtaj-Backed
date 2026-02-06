@@ -24,6 +24,8 @@ const ProductSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   isTrending: { type: Boolean, default: false },
 }, { timestamps: true });
+ProductSchema.index({ createdAt: -1 });
+ProductSchema.index({ isTrending: 1, createdAt: -1 });
 
 const Products = mongoose.model("Product", ProductSchema);
 

@@ -97,7 +97,8 @@ router.get("/", async (req, res) => {
     const products = await Products.find(filter)
       .sort(sortObj)
       .skip(skip)
-      .limit(limitNum);
+      .limit(limitNum)
+      .allowDiskUse();
     const totalProducts = await Products.countDocuments(filter);
 
     res.status(200).json({
@@ -123,18 +124,20 @@ router.get("/trending", async (_req, res) => {
   try {
     const trendingProducts = await Products.find({ isTrending: true })
       .sort({ createdAt: -1 }) // Sort by latest uploaded first (-1 for descending order)
-      .select('name createdAt isTrending'); // Add select to see the fields for debugging
-    
+      .select('name createdAt isTrending')
+      .allowDiskUse(); // Add select to see the fields for debugging
+
     console.log("Trending products fetched:", trendingProducts.map(p => ({
       name: p.name,
       createdAt: p.createdAt,
       isTrending: p.isTrending
     })));
-    
+
     // Remove select for actual response
     const fullTrendingProducts = await Products.find({ isTrending: true })
-      .sort({ createdAt: -1 });
-    
+      .sort({ createdAt: -1 })
+      .allowDiskUse();
+
     res.status(200).json(fullTrendingProducts);
   } catch (error) {
     console.error("Error fetching trending products:", error);
